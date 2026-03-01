@@ -41,6 +41,15 @@ A web app where you paste lyrics, manually tag rhyme schemes with full color and
 - [x] Synced playback preview (words highlight as audio plays)
 - [x] Undo last tap (Backspace), stop sync (Escape)
 
+### Phase 4.5: First-Time User Experience [x]
+
+- [x] "How it works" step cards on landing page
+- [x] 5-step guided onboarding tour (localStorage-persisted)
+- [x] Persistent help modal with full feature reference
+- [x] Enhanced empty states and contextual hints
+- [x] Friendlier mode labels (Read / Tag Rhymes)
+- [x] Visual affordance improvements (hover underline, instructional banners)
+
 ### Phase 5: Video Export (Future)
 
 - [ ] Remotion integration

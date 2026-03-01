@@ -60,7 +60,7 @@ export const ManualTagToolbar = observer(function ManualTagToolbar() {
             <span className="text-sm text-white/80 font-medium max-w-[120px] truncate">
               {activeGroup.name || activeGroup.label || `Group ${project.project.rhymeGroups.indexOf(activeGroup) + 1}`}
             </span>
-            <span className="text-xs text-white/30">active</span>
+            <span className="text-xs text-white/40">— click words in the lyrics to tag them</span>
             <button
               onClick={() => ui.selectGroup(null)}
               title="Deactivate group (Esc)"
@@ -70,10 +70,12 @@ export const ManualTagToolbar = observer(function ManualTagToolbar() {
             </button>
           </div>
         ) : (
-          <span className="text-xs text-white/30 shrink-0">
+          <span className="text-xs text-white/35 shrink-0">
             {selectionCount > 0
               ? `${selectionCount} word${selectionCount !== 1 ? 's' : ''} selected`
-              : 'Select a group or click New Group to start tagging'}
+              : project.project.rhymeGroups.length > 0
+                ? 'Click a group in the sidebar, then click words to tag them'
+                : 'Create a group in the sidebar to start tagging rhymes'}
           </span>
         )}
 

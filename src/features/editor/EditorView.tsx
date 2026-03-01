@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useProjectStore, useUIStore } from '../../stores';
 import { LyricsInput } from './LyricsInput';
@@ -7,9 +7,15 @@ import { RhymeGroupPanel } from './RhymeGroupPanel';
 import { ManualTagToolbar } from './ManualTagToolbar';
 import { PlaybackControls } from '../playback/PlaybackControls';
 
+const MODE_LABELS: Record<string, string> = {
+  view: 'Read',
+  tag: 'Tag Rhymes',
+};
+
 export const EditorView = observer(function EditorView() {
   const project = useProjectStore();
   const ui = useUIStore();
+  const prevHasLyrics = useRef(project.hasLyrics);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -45,6 +51,13 @@ export const EditorView = observer(function EditorView() {
     return () => window.removeEventListener('keydown', handler);
   }, [project, ui, ui.isSyncMode, ui.mode, ui.selectedGroupId]);
 
+  useEffect(() => {
+    if (project.hasLyrics && !prevHasLyrics.current && !ui.hasCompletedOnboarding) {
+      ui.startOnboarding();
+    }
+    prevHasLyrics.current = project.hasLyrics;
+  }, [project.hasLyrics, ui]);
+
   return (
     <div className="flex h-full">
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -62,13 +75,13 @@ export const EditorView = observer(function EditorView() {
                     <button
                       key={mode}
                       onClick={() => ui.setMode(mode)}
-                      className={`px-3 py-1.5 rounded-md text-xs font-medium uppercase tracking-wider transition-colors ${
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium tracking-wide transition-colors ${
                         ui.mode === mode
                           ? 'bg-white/15 text-white'
                           : 'text-white/40 hover:text-white/70 hover:bg-white/5'
                       }`}
                     >
-                      {mode}
+                      {MODE_LABELS[mode] ?? mode}
                     </button>
                   ))}
                 </div>

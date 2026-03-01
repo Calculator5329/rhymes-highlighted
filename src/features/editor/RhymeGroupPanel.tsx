@@ -34,6 +34,9 @@ export const RhymeGroupPanel = observer(function RhymeGroupPanel() {
     }
   }
 
+  let totalTaggedWords = 0;
+  for (const count of wordCountByGroup.values()) totalTaggedWords += count;
+
   const handleAssignSelected = (groupId: string) => {
     for (const pos of ui.selectedWordPositions) {
       project.assignWordToGroup(pos.lineIndex, pos.wordIndex, groupId);
@@ -79,16 +82,19 @@ export const RhymeGroupPanel = observer(function RhymeGroupPanel() {
 
       {groups.length === 0 ? (
         <div className="space-y-3">
-          <p className="text-xs text-white/25 italic">
-            No groups yet.
-          </p>
+          <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-3 space-y-2">
+            <p className="text-xs text-white/45 leading-relaxed">
+              Rhyme groups are color labels you assign to words.
+              Create your first group, then click words in the lyrics to tag them.
+            </p>
+          </div>
           {ui.mode === 'tag' && (
             <button
               onClick={() => {
                 const group = project.createRhymeGroup();
                 ui.selectGroup(group.id);
               }}
-              className="w-full text-xs bg-white/5 hover:bg-white/10 border border-white/10 text-white/50 py-2 rounded-md transition-colors"
+              className="w-full text-sm bg-rhyme-purple/10 hover:bg-rhyme-purple/20 border border-rhyme-purple/20 hover:border-rhyme-purple/35 text-rhyme-purple/80 py-2.5 rounded-lg transition-colors font-medium"
             >
               + Create first group
             </button>
@@ -234,8 +240,17 @@ export const RhymeGroupPanel = observer(function RhymeGroupPanel() {
         </div>
       )}
 
+      {/* First-group hint: shown when there are groups but no words tagged yet */}
+      {ui.mode === 'tag' && groups.length > 0 && totalTaggedWords === 0 && ui.selectedGroupId && (
+        <div className="bg-rhyme-purple/5 border border-rhyme-purple/15 rounded-lg p-3">
+          <p className="text-xs text-rhyme-purple/70 leading-relaxed">
+            Now click words in the lyrics to tag them with this group's color.
+          </p>
+        </div>
+      )}
+
       {/* Help text */}
-      {ui.mode === 'tag' && groups.length > 0 && (
+      {ui.mode === 'tag' && groups.length > 0 && totalTaggedWords > 0 && (
         <p className="text-xs text-white/15 pt-1">
           Double-click a name to rename &nbsp;·&nbsp; Click swatch to change color
         </p>

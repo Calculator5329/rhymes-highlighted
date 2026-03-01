@@ -34,7 +34,7 @@ export const WordSpan = observer(function WordSpan({
 
   const wrapClasses = `
     inline-block mr-1.5 py-0.5 rounded-sm transition-all duration-100
-    ${isTagMode ? 'cursor-pointer hover:bg-white/10' : ''}
+    ${isTagMode ? 'cursor-pointer hover:bg-white/10 hover:underline decoration-white/20 underline-offset-2' : ''}
     ${isSelected ? 'ring-1 ring-white/60 bg-white/10' : ''}
     ${isInActiveGroup ? 'ring-1 ring-white/30' : ''}
     ${isActive ? 'scale-110 brightness-150' : ''}

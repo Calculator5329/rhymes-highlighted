@@ -1,5 +1,30 @@
 # Rhymes Highlighted — Changelog
 
+## 2026-02-28 — First-Time User Experience Overhaul
+
+### Added
+
+- **"How it works" landing page**: LyricsInput now shows 3 visual step cards explaining the workflow (paste, tag, sync) before the user starts.
+- **Guided onboarding tour**: A 5-step coach mark overlay walks first-time users through creating a group, clicking words, right-click menus, keyboard shortcuts, and the help button. Persisted via localStorage so it only shows once.
+- **Persistent help modal**: A "?" button in the header opens a comprehensive quick-reference guide covering tagging, right-click menu, group management, keyboard shortcuts, audio sync, and saving. Includes a "Restart tour" option.
+- **Enhanced empty states**: RhymeGroupPanel explains what rhyme groups are and has a more prominent "Create first group" CTA. Shows a contextual hint after first group creation prompting the user to click words.
+- **Richer toolbar hints**: ManualTagToolbar now shows actionable guidance based on context (no groups yet, group active but no words tagged, etc.).
+- **Instructional overlay in lyrics area**: When in tag mode with an active group and no tagged words yet, a hint banner appears above the lyrics.
+- **Visual affordance for clickable words**: Words in tag mode now show a subtle underline on hover to communicate interactivity.
+
+### Changed
+
+- **Mode labels renamed**: "View" / "Tag" buttons are now "Read" / "Tag Rhymes" for clarity.
+- **Start Tagging button** now uses the app's purple accent color for better visual hierarchy.
+
+### Technical Decisions
+
+- Onboarding state lives in UIStore (runtime) with localStorage persistence (single `rhymes-hl-onboarding-complete` key).
+- No new dependencies; all UI built with existing React + MobX + Tailwind stack.
+- New components in `src/features/onboarding/` (OnboardingOverlay, HelpModal) follow existing three-layer architecture.
+
+---
+
 ## 2026-02-19 — Manual Highlighter Conversion
 
 ### Changed
