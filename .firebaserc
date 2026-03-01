@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "master-site-92392"
+  },
+  "targets": {
+    "master-site-92392": {
+      "hosting": {
+        "rhymes-highlighted": ["rhymes-highlighted-d5ea8"]
+      }
+    }
+  }
+}
