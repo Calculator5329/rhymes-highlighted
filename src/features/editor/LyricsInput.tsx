@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useProjectStore } from '../../stores';
 
@@ -41,10 +42,21 @@ const STEPS = [
 
 export const LyricsInput = observer(function LyricsInput() {
   const project = useProjectStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importError, setImportError] = useState('');
 
   const handleStart = () => {
     if (!project.rawLyrics.trim()) return;
     project.parseLyrics();
+  };
+
+  const handleLrcImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    const imported = project.importLrc(await file.text());
+    setImportError(imported ? '' : 'No valid timestamped lyric lines were found.');
   };
 
   return (
@@ -80,6 +92,26 @@ export const LyricsInput = observer(function LyricsInput() {
         </div>
 
         <div className="space-y-4 pt-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".lrc,text/plain"
+            onChange={handleLrcImport}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full border border-dashed border-white/15 hover:border-white/25 text-white/50 hover:text-white/70 font-medium py-3 rounded-lg transition-colors text-sm"
+          >
+            Import timed lyrics (.lrc)
+          </button>
+          {importError && (
+            <p role="alert" className="text-xs text-rhyme-red/80 text-center">
+              {importError}
+            </p>
+          )}
+
           <input
             type="text"
             placeholder="Song title (optional)"
