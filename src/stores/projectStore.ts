@@ -1,6 +1,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import type { Line, Word, RhymeGroup, Project, RhymePaletteId } from '../core/types';
 import { DEFAULT_RHYME_PALETTE, RHYME_PALETTES } from '../core/types';
+import { parseLrc } from '../services/lrcService';
 
 function parseLyrics(text: string): Line[] {
   return text.split('\n').map((rawText, lineIndex) => {
@@ -44,6 +45,18 @@ export class ProjectStore {
     this.pushUndo();
     this.project.lines = parseLyrics(this.rawLyrics);
     this.project.rhymeGroups = [];
+  }
+
+  importLrc(source: string): boolean {
+    const result = parseLrc(source);
+    if (result.lines.length === 0) return false;
+
+    this.pushUndo();
+    this.project.lines = result.lines;
+    this.project.rhymeGroups = [];
+    this.rawLyrics = result.lines.map(line => line.rawText).join('\n');
+    if (result.metadata.title) this.project.title = result.metadata.title;
+    return true;
   }
 
   assignWordToGroup(lineIndex: number, wordIndex: number, groupId: string) {

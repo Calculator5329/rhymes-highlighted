@@ -51,7 +51,7 @@ A web app where you paste lyrics, manually tag rhyme schemes with full color and
 ### Phase 6: Enhancements (Future)
 
 - [ ] Whisper-based automatic audio alignment
-- [ ] LRC file import for pre-timed lyrics
+- [x] LRC file import for pre-timed lyrics *(done 2026-07-10, burndown w4)*
 - [x] Save/load projects to localStorage *(done 2026-07-10)*
 - [x] Share via URL (compressed base64 encoding) *(done 2026-07-10, burndown w1)*
 - [x] Multiple color palettes / themes *(done 2026-07-10, burndown w3)*
