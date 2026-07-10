@@ -1,9 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { observer } from 'mobx-react-lite';
 import { EditorView } from './features/editor/EditorView';
-import { OnboardingOverlay } from './features/onboarding/OnboardingOverlay';
-import { HelpModal } from './features/onboarding/HelpModal';
-import { useProjectStore, useUIStore } from './stores';
+import { useProjectStore } from './stores';
 import {
   saveProject,
   loadLastProject,
@@ -16,7 +14,6 @@ import {
 
 const App = observer(function App() {
   const project = useProjectStore();
-  const ui = useUIStore();
   const [showSaved, setShowSaved] = useState(false);
   const [saveFlash, setSaveFlash] = useState(false);
 
@@ -82,16 +79,6 @@ const App = observer(function App() {
         </span>
 
         <div className="ml-auto flex items-center gap-2">
-          <button
-            onClick={() => ui.toggleHelpModal()}
-            title="Help &amp; shortcuts"
-            className="text-xs w-7 h-7 rounded-full border border-white/10 text-white/35 hover:text-white/70 hover:border-white/25 hover:bg-white/5 transition-colors flex items-center justify-center font-semibold"
-          >
-            ?
-          </button>
-
-          <span className="w-px h-4 bg-white/8" />
-
           <button
             onClick={handleSave}
             className={`text-xs px-3 py-1.5 rounded-md transition-colors ${
@@ -166,9 +153,6 @@ const App = observer(function App() {
       <div className="flex-1 overflow-hidden">
         <EditorView />
       </div>
-
-      <OnboardingOverlay />
-      <HelpModal />
     </div>
   );
 });
