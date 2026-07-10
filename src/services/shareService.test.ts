@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { Project } from '../core/types';
 import {
   decodeProjectFromHash,
+  decodeSharedProjectFromHash,
   encodeProjectToHash,
   getHashByteLength,
   isShareHashOversized,
@@ -47,6 +48,19 @@ describe('project URL sharing', () => {
     expect(await decodeProjectFromHash(hash)).toEqual(project);
   });
 
+  it('round-trips the selected palette in the share payload', async () => {
+    const hash = await encodeProjectToHash(project, 'sunset');
+
+    expect(await decodeSharedProjectFromHash(hash)).toEqual({ project, palette: 'sunset' });
+  });
+
+  it('loads palette-free links created by the original share format', async () => {
+    const hash = await encodeProjectToHash(project);
+
+    expect(await decodeSharedProjectFromHash(hash)).toEqual({ project, palette: undefined });
+    expect(await decodeProjectFromHash(hash)).toEqual(project);
+  });
+
   it.each([
     '',
     '#something-else',
@@ -66,4 +80,3 @@ describe('project URL sharing', () => {
     expect(isShareHashOversized(overLimit)).toBe(true);
   });
 });
-

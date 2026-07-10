@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction } from 'mobx';
-import type { Line, Word, RhymeGroup, Project } from '../core/types';
-import { RHYME_COLORS } from '../core/types';
+import type { Line, Word, RhymeGroup, Project, RhymePaletteId } from '../core/types';
+import { DEFAULT_RHYME_PALETTE, RHYME_PALETTES } from '../core/types';
 
 function parseLyrics(text: string): Line[] {
   return text.split('\n').map((rawText, lineIndex) => {
@@ -23,6 +23,7 @@ export class ProjectStore {
   };
 
   rawLyrics = '';
+  palette: RhymePaletteId = DEFAULT_RHYME_PALETTE;
 
   private undoStack: string[] = [];
   private redoStack: string[] = [];
@@ -66,11 +67,21 @@ export class ProjectStore {
     this.pushUndo();
     const group: RhymeGroup = {
       id: `group-${++groupCounter}`,
-      color: RHYME_COLORS[this.project.rhymeGroups.length % RHYME_COLORS.length],
+      color: RHYME_PALETTES[this.palette].colors[
+        this.project.rhymeGroups.length % RHYME_PALETTES[this.palette].colors.length
+      ],
       label,
     };
     this.project.rhymeGroups.push(group);
     return group;
+  }
+
+  setPalette(palette: RhymePaletteId) {
+    this.palette = palette;
+    const colors = RHYME_PALETTES[palette].colors;
+    this.project.rhymeGroups.forEach((group, index) => {
+      group.color = colors[index % colors.length];
+    });
   }
 
   deleteRhymeGroup(groupId: string) {
