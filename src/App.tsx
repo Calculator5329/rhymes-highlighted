@@ -14,6 +14,12 @@ import {
   loadProject,
   saveProject,
 } from './services/storageService';
+import {
+  decodeProjectFromHash,
+  encodeProjectToHash,
+  getHashByteLength,
+  isShareHashOversized,
+} from './services/shareService';
 
 const AUTOSAVE_DELAY_MS = 700;
 
@@ -23,14 +29,25 @@ const App = observer(function App() {
   const [showSaved, setShowSaved] = useState(false);
   const [saveName, setSaveName] = useState(project.project.title);
   const [saveFlash, setSaveFlash] = useState(false);
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copying' | 'copied' | 'failed'>('idle');
   const [, setProjectsRevision] = useState(0);
 
   useEffect(() => {
-    const last = loadLastProject();
-    if (last) {
-      project.loadProject(last);
-      setSaveName(last.title);
-    }
+    let cancelled = false;
+
+    const loadInitialProject = async () => {
+      const shared = await decodeProjectFromHash(window.location.hash);
+      const initial = shared ?? loadLastProject();
+      if (!cancelled && initial) {
+        project.loadProject(initial);
+        setSaveName(initial.title);
+      }
+    };
+
+    void loadInitialProject();
+    return () => {
+      cancelled = true;
+    };
   }, [project]);
 
   useEffect(() => {
@@ -83,6 +100,33 @@ const App = observer(function App() {
 
   const handleDownload = useCallback(() => {
     downloadProjectAsJson(project.project);
+  }, [project]);
+
+  const handleShare = useCallback(async () => {
+    setShareStatus('copying');
+
+    try {
+      const hash = await encodeProjectToHash(project.project);
+      if (isShareHashOversized(hash)) {
+        const size = (getHashByteLength(hash) / 1024).toFixed(1);
+        const confirmed = window.confirm(
+          `This share link is ${size} KiB and may be too large for some browsers or messaging apps. Copy it anyway?`,
+        );
+        if (!confirmed) {
+          setShareStatus('idle');
+          return;
+        }
+      }
+
+      const url = new URL(window.location.href);
+      url.hash = hash.slice(1);
+      await navigator.clipboard.writeText(url.toString());
+      setShareStatus('copied');
+      setTimeout(() => setShareStatus('idle'), 1600);
+    } catch {
+      setShareStatus('failed');
+      setTimeout(() => setShareStatus('idle'), 2400);
+    }
   }, [project]);
 
   const handleImport = useCallback(async () => {
@@ -158,6 +202,27 @@ const App = observer(function App() {
             className="text-xs px-3 py-1.5 rounded-md text-white/40 hover:text-white/70 hover:bg-white/5 transition-colors"
           >
             Download
+          </button>
+
+          <button
+            onClick={handleShare}
+            disabled={shareStatus === 'copying'}
+            title={shareStatus === 'failed' ? 'Could not copy the share link' : 'Copy a shareable project link'}
+            className={`text-xs px-3 py-1.5 rounded-md transition-colors disabled:opacity-50 ${
+              shareStatus === 'copied'
+                ? 'bg-green-500/20 text-green-400'
+                : shareStatus === 'failed'
+                  ? 'bg-red-500/15 text-red-400'
+                  : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+            }`}
+          >
+            {shareStatus === 'copying'
+              ? 'Sharing…'
+              : shareStatus === 'copied'
+                ? 'Link copied'
+                : shareStatus === 'failed'
+                  ? 'Copy failed'
+                  : 'Share'}
           </button>
 
           <button
