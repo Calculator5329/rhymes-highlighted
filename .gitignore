@@ -13,3 +13,5 @@ __pycache__/
 node_modules/
 dist/
 build/
+# agent-orchestrator local state
+.orc/

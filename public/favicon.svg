@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#12122a"/>
+      <stop offset="100%" stop-color="#1e1e3f"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+
+  <!-- Subtle grid lines for texture -->
+  <line x1="72" y1="148" x2="440" y2="148" stroke="#ffffff" stroke-width="1" opacity="0.04"/>
+  <line x1="72" y1="218" x2="440" y2="218" stroke="#ffffff" stroke-width="1" opacity="0.04"/>
+  <line x1="72" y1="288" x2="440" y2="288" stroke="#ffffff" stroke-width="1" opacity="0.04"/>
+  <line x1="72" y1="358" x2="440" y2="358" stroke="#ffffff" stroke-width="1" opacity="0.04"/>
+
+  <!-- Line 1: muted words + coral highlight -->
+  <rect x="72"  y="104" width="108" height="32" rx="6" fill="#2a2a50"/>
+  <rect x="196" y="104" width="84"  height="32" rx="6" fill="#ff6b6b" filter="url(#glow)"/>
+  <rect x="296" y="104" width="68"  height="32" rx="6" fill="#2a2a50"/>
+  <rect x="380" y="104" width="60"  height="32" rx="6" fill="#2a2a50"/>
+
+  <!-- Line 2: muted words + teal highlight -->
+  <rect x="72"  y="174" width="72"  height="32" rx="6" fill="#2a2a50"/>
+  <rect x="160" y="174" width="96"  height="32" rx="6" fill="#2a2a50"/>
+  <rect x="272" y="174" width="88"  height="32" rx="6" fill="#4ecdc4" filter="url(#glow)"/>
+  <rect x="376" y="174" width="64"  height="32" rx="6" fill="#2a2a50"/>
+
+  <!-- Line 3: muted words + amber highlight -->
+  <rect x="72"  y="244" width="92"  height="32" rx="6" fill="#2a2a50"/>
+  <rect x="180" y="244" width="80"  height="32" rx="6" fill="#ffd93d" filter="url(#glow)"/>
+  <rect x="276" y="244" width="104" height="32" rx="6" fill="#2a2a50"/>
+  <rect x="396" y="244" width="44"  height="32" rx="6" fill="#2a2a50"/>
+
+  <!-- Line 4: muted words + coral highlight (rhymes with line 1) -->
+  <rect x="72"  y="314" width="84"  height="32" rx="6" fill="#2a2a50"/>
+  <rect x="172" y="314" width="68"  height="32" rx="6" fill="#2a2a50"/>
+  <rect x="256" y="314" width="92"  height="32" rx="6" fill="#ff6b6b" filter="url(#glow)"/>
+  <rect x="364" y="314" width="76"  height="32" rx="6" fill="#2a2a50"/>
+
+  <!-- Line 5: muted words + teal highlight (rhymes with line 2) -->
+  <rect x="72"  y="384" width="80"  height="32" rx="6" fill="#4ecdc4" filter="url(#glow)"/>
+  <rect x="168" y="384" width="100" height="32" rx="6" fill="#2a2a50"/>
+  <rect x="284" y="384" width="72"  height="32" rx="6" fill="#2a2a50"/>
+  <rect x="372" y="384" width="68"  height="32" rx="6" fill="#2a2a50"/>
+
+  <!-- Rhyme connection arcs (subtle dashed curves linking matching colors) -->
+  <!-- Coral pair: line 1 to line 4 -->
+  <path d="M238,136 C460,136 460,330 302,330" fill="none" stroke="#ff6b6b" stroke-width="2.5" opacity="0.35" stroke-dasharray="8,5"/>
+  <!-- Teal pair: line 2 to line 5 -->
+  <path d="M316,206 C52,220 52,400 112,400" fill="none" stroke="#4ecdc4" stroke-width="2.5" opacity="0.35" stroke-dasharray="8,5"/>
+</svg>

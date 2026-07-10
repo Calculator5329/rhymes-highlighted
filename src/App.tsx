@@ -1,34 +1,85 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { reaction } from 'mobx';
 import { observer } from 'mobx-react-lite';
 import { EditorView } from './features/editor/EditorView';
-import { useProjectStore } from './stores';
+import { OnboardingOverlay } from './features/onboarding/OnboardingOverlay';
+import { HelpModal } from './features/onboarding/HelpModal';
+import { useProjectStore, useUIStore } from './stores';
 import {
-  saveProject,
-  loadLastProject,
-  listSavedProjects,
-  loadProject,
   deleteProject,
   downloadProjectAsJson,
   importProjectFromFile,
+  listSavedProjects,
+  loadLastProject,
+  loadProject,
+  saveProject,
 } from './services/storageService';
+
+const AUTOSAVE_DELAY_MS = 700;
 
 const App = observer(function App() {
   const project = useProjectStore();
+  const ui = useUIStore();
   const [showSaved, setShowSaved] = useState(false);
+  const [saveName, setSaveName] = useState(project.project.title);
   const [saveFlash, setSaveFlash] = useState(false);
+  const [, setProjectsRevision] = useState(0);
 
   useEffect(() => {
     const last = loadLastProject();
     if (last) {
       project.loadProject(last);
+      setSaveName(last.title);
     }
   }, [project]);
 
-  const handleSave = useCallback(() => {
-    saveProject(project.project);
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const dispose = reaction(
+      () => JSON.stringify(project.project),
+      () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          if (saveProject(project.project)) {
+            setProjectsRevision(value => value + 1);
+          }
+        }, AUTOSAVE_DELAY_MS);
+      },
+    );
+
+    return () => {
+      dispose();
+      clearTimeout(timer);
+    };
+  }, [project]);
+
+  const flashSaved = useCallback(() => {
     setSaveFlash(true);
     setTimeout(() => setSaveFlash(false), 1200);
-  }, [project]);
+  }, []);
+
+  const handleSave = useCallback(() => {
+    if (saveProject(project.project)) {
+      setProjectsRevision(value => value + 1);
+      flashSaved();
+    }
+  }, [flashSaved, project]);
+
+  const handleSaveAs = useCallback(() => {
+    const title = saveName.trim();
+    if (!title) return;
+
+    const copy = {
+      ...project.project,
+      id: crypto.randomUUID(),
+      title,
+    };
+    project.loadProject(copy);
+    if (saveProject(copy)) {
+      setProjectsRevision(value => value + 1);
+      flashSaved();
+    }
+  }, [flashSaved, project, saveName]);
 
   const handleDownload = useCallback(() => {
     downloadProjectAsJson(project.project);
@@ -38,9 +89,11 @@ const App = observer(function App() {
     try {
       const data = await importProjectFromFile();
       project.loadProject(data);
+      setSaveName(data.title);
       saveProject(data);
+      setProjectsRevision(value => value + 1);
     } catch {
-      // user cancelled or bad file
+      // Cancellation and malformed files leave the current project untouched.
     }
   }, [project]);
 
@@ -48,20 +101,20 @@ const App = observer(function App() {
     const data = loadProject(id);
     if (data) {
       project.loadProject(data);
+      setSaveName(data.title);
       setShowSaved(false);
     }
   }, [project]);
 
   const handleDeleteProject = useCallback((id: string) => {
     deleteProject(id);
-    setShowSaved(show => show);
+    setProjectsRevision(value => value + 1);
   }, []);
 
-  // Ctrl+S to save
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
+    const handler = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+        event.preventDefault();
         handleSave();
       }
     };
@@ -79,6 +132,16 @@ const App = observer(function App() {
         </span>
 
         <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => ui.toggleHelpModal()}
+            title="Help & shortcuts"
+            className="text-xs w-7 h-7 rounded-full border border-white/10 text-white/35 hover:text-white/70 hover:border-white/25 hover:bg-white/5 transition-colors flex items-center justify-center font-semibold"
+          >
+            ?
+          </button>
+
+          <span className="w-px h-4 bg-white/8" />
+
           <button
             onClick={handleSave}
             className={`text-xs px-3 py-1.5 rounded-md transition-colors ${
@@ -106,43 +169,76 @@ const App = observer(function App() {
 
           <div className="relative">
             <button
-              onClick={() => setShowSaved(!showSaved)}
+              onClick={() => {
+                setSaveName(project.project.title);
+                setShowSaved(value => !value);
+              }}
               className={`text-xs px-3 py-1.5 rounded-md transition-colors ${
                 showSaved ? 'bg-white/10 text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/5'
               }`}
             >
-              Open
+              Projects
             </button>
 
             {showSaved && (
-              <div className="absolute right-0 top-full mt-1 w-64 bg-surface-700 border border-white/10 rounded-lg shadow-xl z-50 py-1">
+              <div className="absolute right-0 top-full mt-1 w-72 bg-surface-700 border border-white/10 rounded-lg shadow-xl z-50 py-2">
+                <form
+                  className="flex gap-2 px-3 pb-2 border-b border-white/8"
+                  onSubmit={event => {
+                    event.preventDefault();
+                    handleSaveAs();
+                  }}
+                >
+                  <input
+                    value={saveName}
+                    onChange={event => setSaveName(event.target.value)}
+                    aria-label="Project name"
+                    placeholder="Project name"
+                    className="min-w-0 flex-1 rounded-md bg-surface-900 border border-white/10 px-2 py-1.5 text-xs text-white/80 outline-none focus:border-rhyme-purple/60"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!saveName.trim()}
+                    className="text-xs px-2.5 py-1.5 rounded-md bg-rhyme-purple/20 text-rhyme-purple hover:bg-rhyme-purple/30 disabled:opacity-30 transition-colors"
+                  >
+                    Save as
+                  </button>
+                </form>
+
+                <p className="px-3 pt-2 pb-1 text-[10px] uppercase tracking-wider text-white/25">
+                  Saved projects
+                </p>
                 {savedProjects.length === 0 ? (
                   <p className="px-3 py-3 text-xs text-white/30 text-center italic">
                     No saved projects
                   </p>
                 ) : (
-                  savedProjects.map(entry => (
-                    <div
-                      key={entry.id}
-                      className="flex items-center gap-2 px-3 py-2 hover:bg-white/5 transition-colors group"
-                    >
-                      <button
-                        onClick={() => handleLoadProject(entry.id)}
-                        className="flex-1 text-left text-sm text-white/70 truncate"
+                  <div className="max-h-64 overflow-y-auto">
+                    {savedProjects.map(entry => (
+                      <div
+                        key={entry.id}
+                        className="flex items-center gap-2 px-3 py-2 hover:bg-white/5 transition-colors group"
                       >
-                        {entry.title}
-                      </button>
-                      <span className="text-xs text-white/20 shrink-0">
-                        {new Date(entry.updatedAt).toLocaleDateString()}
-                      </span>
-                      <button
-                        onClick={() => handleDeleteProject(entry.id)}
-                        className="text-xs text-white/15 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))
+                        <button
+                          onClick={() => handleLoadProject(entry.id)}
+                          className="flex-1 text-left text-sm text-white/70 truncate"
+                          title={`Load ${entry.title}`}
+                        >
+                          {entry.title}
+                        </button>
+                        <span className="text-[10px] text-white/20 shrink-0">
+                          {new Date(entry.updatedAt).toLocaleDateString()}
+                        </span>
+                        <button
+                          onClick={() => handleDeleteProject(entry.id)}
+                          aria-label={`Delete ${entry.title}`}
+                          className="text-sm text-white/20 hover:text-red-400 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             )}
@@ -153,6 +249,9 @@ const App = observer(function App() {
       <div className="flex-1 overflow-hidden">
         <EditorView />
       </div>
+
+      <OnboardingOverlay />
+      <HelpModal />
     </div>
   );
 });
