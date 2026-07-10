@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx';
-import type { EditorMode } from '../core/types';
+import { type EditorMode, type RhymePaletteId } from '../core/types';
+import { loadPalette, savePalette } from '../services/storageService';
 
 const ONBOARDING_KEY = 'rhymes-hl-onboarding-complete';
 
@@ -9,14 +10,25 @@ export class UIStore {
   selectedWordPositions: Array<{ lineIndex: number; wordIndex: number }> = [];
   isSyncMode = false;
   syncWordIndex = 0;
+  palette: RhymePaletteId;
 
   onboardingStep: number | null = null;
   showHelpModal = false;
   hasCompletedOnboarding: boolean;
 
   constructor() {
-    this.hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY) === 'true';
+    try {
+      this.hasCompletedOnboarding = localStorage.getItem(ONBOARDING_KEY) === 'true';
+    } catch {
+      this.hasCompletedOnboarding = false;
+    }
+    this.palette = loadPalette();
     makeAutoObservable(this);
+  }
+
+  setPalette(palette: RhymePaletteId) {
+    this.palette = palette;
+    savePalette(palette);
   }
 
   setMode(mode: EditorMode) {

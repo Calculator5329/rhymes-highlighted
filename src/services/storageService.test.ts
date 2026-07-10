@@ -1,10 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import type { Project } from '../core/types';
 import {
+  loadPalette,
   parseSerializedProject,
   PROJECT_SERIALIZATION_VERSION,
+  savePalette,
   serializeProject,
 } from './storageService';
+
+class MemoryStorage implements Storage {
+  private values = new Map<string, string>();
+  get length() { return this.values.size; }
+  clear() { this.values.clear(); }
+  getItem(key: string) { return this.values.get(key) ?? null; }
+  key(index: number) { return [...this.values.keys()][index] ?? null; }
+  removeItem(key: string) { this.values.delete(key); }
+  setItem(key: string, value: string) { this.values.set(key, value); }
+}
 
 const project: Project = {
   id: 'project-1',
@@ -65,5 +77,29 @@ describe('project serialization', () => {
     JSON.stringify({ ...project, lines: [{ rawText: 'bad', words: [{ text: 'bad' }] }] }),
   ])('returns null for malformed or unsupported data', serialized => {
     expect(parseSerializedProject(serialized)).toBeNull();
+  });
+});
+
+describe('palette persistence', () => {
+  it('saves and restores a selected palette', () => {
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: new MemoryStorage(),
+    });
+
+    expect(loadPalette()).toBe('neon');
+    expect(savePalette('ocean')).toBe(true);
+    expect(loadPalette()).toBe('ocean');
+  });
+
+  it('falls back to the default for an unknown stored palette', () => {
+    const storage = new MemoryStorage();
+    storage.setItem('rhymes-highlighted-palette', 'unknown');
+    Object.defineProperty(globalThis, 'localStorage', {
+      configurable: true,
+      value: storage,
+    });
+
+    expect(loadPalette()).toBe('neon');
   });
 });

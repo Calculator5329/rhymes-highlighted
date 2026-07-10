@@ -1,8 +1,13 @@
-import type { Project } from '../core/types';
+import { isRhymePaletteId, type Project, type RhymePaletteId } from '../core/types';
 import { parseSerializedProject, serializeProject } from './storageService';
 
 export const SHARE_HASH_PREFIX = '#project=';
 export const SHARE_HASH_WARNING_BYTES = 8 * 1024;
+
+export interface SharedProject {
+  project: Project;
+  palette?: RhymePaletteId;
+}
 
 function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = '';
@@ -40,21 +45,36 @@ async function transformBytes(
   return new Uint8Array(await new Response(output).arrayBuffer());
 }
 
-export async function encodeProjectToHash(project: Project): Promise<string> {
-  const serialized = new TextEncoder().encode(serializeProject(project));
+export async function encodeProjectToHash(project: Project, palette?: RhymePaletteId): Promise<string> {
+  const projectEnvelope = JSON.parse(serializeProject(project)) as Record<string, unknown>;
+  const serialized = new TextEncoder().encode(JSON.stringify({ ...projectEnvelope, palette }));
   const compressed = await transformBytes(serialized, new CompressionStream('gzip'));
   return `${SHARE_HASH_PREFIX}${bytesToBase64Url(compressed)}`;
 }
 
 export async function decodeProjectFromHash(hash: string): Promise<Project | null> {
+  return (await decodeSharedProjectFromHash(hash))?.project ?? null;
+}
+
+export async function decodeSharedProjectFromHash(hash: string): Promise<SharedProject | null> {
   if (!hash.startsWith(SHARE_HASH_PREFIX)) return null;
 
   const compressed = base64UrlToBytes(hash.slice(SHARE_HASH_PREFIX.length));
   if (!compressed) return null;
 
   try {
-    const serialized = await transformBytes(compressed, new DecompressionStream('gzip'));
-    return parseSerializedProject(new TextDecoder().decode(serialized));
+    const serialized = new TextDecoder().decode(
+      await transformBytes(compressed, new DecompressionStream('gzip')),
+    );
+    const project = parseSerializedProject(serialized);
+    if (!project) return null;
+
+    const value: unknown = JSON.parse(serialized);
+    const palette = typeof value === 'object' && value !== null && 'palette' in value
+      && isRhymePaletteId(value.palette)
+      ? value.palette
+      : undefined;
+    return { project, palette };
   } catch {
     return null;
   }
@@ -67,4 +87,3 @@ export function getHashByteLength(hash: string): number {
 export function isShareHashOversized(hash: string): boolean {
   return getHashByteLength(hash) > SHARE_HASH_WARNING_BYTES;
 }
-

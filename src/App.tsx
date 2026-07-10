@@ -5,6 +5,7 @@ import { EditorView } from './features/editor/EditorView';
 import { OnboardingOverlay } from './features/onboarding/OnboardingOverlay';
 import { HelpModal } from './features/onboarding/HelpModal';
 import { useProjectStore, useUIStore } from './stores';
+import { RHYME_PALETTES, type RhymePaletteId } from './core/types';
 import {
   deleteProject,
   downloadProjectAsJson,
@@ -15,7 +16,7 @@ import {
   saveProject,
 } from './services/storageService';
 import {
-  decodeProjectFromHash,
+  decodeSharedProjectFromHash,
   encodeProjectToHash,
   getHashByteLength,
   isShareHashOversized,
@@ -36,10 +37,14 @@ const App = observer(function App() {
     let cancelled = false;
 
     const loadInitialProject = async () => {
-      const shared = await decodeProjectFromHash(window.location.hash);
-      const initial = shared ?? loadLastProject();
+      const shared = await decodeSharedProjectFromHash(window.location.hash);
+      const initial = shared?.project ?? loadLastProject();
+      const palette = shared?.palette ?? ui.palette;
+      ui.setPalette(palette);
+      project.setPalette(palette);
       if (!cancelled && initial) {
         project.loadProject(initial);
+        project.setPalette(palette);
         setSaveName(initial.title);
       }
     };
@@ -48,7 +53,7 @@ const App = observer(function App() {
     return () => {
       cancelled = true;
     };
-  }, [project]);
+  }, [project, ui]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -106,7 +111,7 @@ const App = observer(function App() {
     setShareStatus('copying');
 
     try {
-      const hash = await encodeProjectToHash(project.project);
+      const hash = await encodeProjectToHash(project.project, ui.palette);
       if (isShareHashOversized(hash)) {
         const size = (getHashByteLength(hash) / 1024).toFixed(1);
         const confirmed = window.confirm(
@@ -127,7 +132,7 @@ const App = observer(function App() {
       setShareStatus('failed');
       setTimeout(() => setShareStatus('idle'), 2400);
     }
-  }, [project]);
+  }, [project, ui]);
 
   const handleImport = useCallback(async () => {
     try {
@@ -176,6 +181,29 @@ const App = observer(function App() {
         </span>
 
         <div className="ml-auto flex items-center gap-2">
+          <label className="flex items-center gap-1.5 text-xs text-white/35" title="Rhyme highlight palette">
+            <span className="sr-only">Color palette</span>
+            <span className="flex -space-x-1" aria-hidden="true">
+              {RHYME_PALETTES[ui.palette].colors.slice(0, 3).map(color => (
+                <span key={color} className="w-2.5 h-2.5 rounded-full ring-1 ring-surface-900" style={{ backgroundColor: color }} />
+              ))}
+            </span>
+            <select
+              aria-label="Color palette"
+              value={ui.palette}
+              onChange={event => {
+                const palette = event.target.value as RhymePaletteId;
+                ui.setPalette(palette);
+                project.setPalette(palette);
+              }}
+              className="bg-surface-800 border border-white/10 rounded-md px-2 py-1.5 text-xs text-white/60 outline-none hover:border-white/25 focus:border-rhyme-purple/60"
+            >
+              {Object.entries(RHYME_PALETTES).map(([id, palette]) => (
+                <option key={id} value={id}>{palette.name}</option>
+              ))}
+            </select>
+          </label>
+
           <button
             onClick={() => ui.toggleHelpModal()}
             title="Help & shortcuts"

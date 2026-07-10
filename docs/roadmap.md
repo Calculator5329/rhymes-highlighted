@@ -54,5 +54,5 @@ A web app where you paste lyrics, manually tag rhyme schemes with full color and
 - [ ] LRC file import for pre-timed lyrics
 - [x] Save/load projects to localStorage *(done 2026-07-10)*
 - [x] Share via URL (compressed base64 encoding) *(done 2026-07-10, burndown w1)*
-- [ ] Multiple color palettes / themes
+- [x] Multiple color palettes / themes *(done 2026-07-10, burndown w3)*
 - [ ] Responsive mobile layout

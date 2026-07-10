@@ -1,4 +1,13 @@
-import type { Line, Project, RhymeGroup, SyllableSegment, Word } from '../core/types';
+import {
+  DEFAULT_RHYME_PALETTE,
+  isRhymePaletteId,
+  type Line,
+  type Project,
+  type RhymeGroup,
+  type RhymePaletteId,
+  type SyllableSegment,
+  type Word,
+} from '../core/types';
 
 export const PROJECT_SERIALIZATION_VERSION = 1;
 
@@ -6,6 +15,7 @@ const INDEX_KEY = 'rhymes-highlighted-projects';
 const LAST_PROJECT_KEY = 'rhymes-highlighted-last-project';
 const PROJECT_KEY_PREFIX = 'rhymes-highlighted-project-';
 const LEGACY_PROJECT_KEY_PREFIX = 'project-';
+const PALETTE_KEY = 'rhymes-highlighted-palette';
 
 export interface ProjectEntry {
   id: string;
@@ -85,6 +95,30 @@ function getStorage(): Storage | null {
     return globalThis.localStorage;
   } catch {
     return null;
+  }
+}
+
+export function loadPalette(): RhymePaletteId {
+  const storage = getStorage();
+  if (!storage) return DEFAULT_RHYME_PALETTE;
+
+  try {
+    const value = storage.getItem(PALETTE_KEY);
+    return isRhymePaletteId(value) ? value : DEFAULT_RHYME_PALETTE;
+  } catch {
+    return DEFAULT_RHYME_PALETTE;
+  }
+}
+
+export function savePalette(palette: RhymePaletteId): boolean {
+  const storage = getStorage();
+  if (!storage) return false;
+
+  try {
+    storage.setItem(PALETTE_KEY, palette);
+    return true;
+  } catch {
+    return false;
   }
 }
 
