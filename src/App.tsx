@@ -175,12 +175,12 @@ const App = observer(function App() {
 
   return (
     <div className="h-screen flex flex-col bg-surface-900 text-white/90">
-      <header className="shrink-0 h-12 border-b border-white/5 flex items-center px-5 gap-4">
+      <header className="shrink-0 min-h-12 sm:h-12 border-b border-white/5 flex flex-wrap items-center px-3 sm:px-5 gap-x-4 gap-y-2 py-2 sm:py-0">
         <span className="text-sm font-semibold tracking-tight text-white/70">
           rhymes<span className="text-rhyme-purple">highlighted</span>
         </span>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
           <label className="flex items-center gap-1.5 text-xs text-white/35" title="Rhyme highlight palette">
             <span className="sr-only">Color palette</span>
             <span className="flex -space-x-1" aria-hidden="true">

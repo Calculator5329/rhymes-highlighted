@@ -59,13 +59,13 @@ export const EditorView = observer(function EditorView() {
   }, [project.hasLyrics, ui]);
 
   return (
-    <div className="flex h-full">
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <div className="flex flex-col sm:flex-row h-full">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
         {!project.hasLyrics ? (
           <LyricsInput />
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto p-8">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8">
               <div className="flex items-center gap-3 mb-6">
                 <h2 className="text-lg font-semibold text-white/90 tracking-tight">
                   {project.project.title}
@@ -106,7 +106,7 @@ export const EditorView = observer(function EditorView() {
       </div>
 
       {project.hasLyrics && (
-        <aside className="w-72 border-l border-white/5 bg-surface-800 flex flex-col overflow-hidden">
+        <aside className="w-full sm:w-72 shrink-0 min-h-0 max-h-[45vh] sm:max-h-none border-t sm:border-t-0 sm:border-l border-white/5 bg-surface-800 flex flex-col overflow-hidden">
           <div className="flex-1 overflow-y-auto">
             <RhymeGroupPanel />
           </div>

@@ -60,10 +60,10 @@ export const LyricsInput = observer(function LyricsInput() {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center p-8 overflow-y-auto">
+    <div className="flex-1 flex items-center justify-center p-4 sm:p-8 overflow-y-auto">
       <div className="w-full max-w-2xl space-y-8">
         <div className="space-y-3">
-          <h1 className="text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
             Rhymes Highlighted
           </h1>
           <p className="text-white/50 text-sm leading-relaxed max-w-lg">
@@ -73,7 +73,7 @@ export const LyricsInput = observer(function LyricsInput() {
           </p>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {STEPS.map((step) => (
             <div
               key={step.number}

@@ -50,7 +50,7 @@ export const HelpModal = observer(function HelpModal() {
   return (
     <div
       ref={backdropRef}
-      className="fixed inset-0 z-[200] flex items-center justify-center"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
       onClick={(e) => {
         if (e.target === backdropRef.current) ui.closeHelpModal();
       }}
@@ -58,7 +58,7 @@ export const HelpModal = observer(function HelpModal() {
       <div className="absolute inset-0 bg-black/50" />
 
       <div className="relative bg-surface-800 border border-white/10 rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-white/5 shrink-0">
           <h2 className="text-base font-semibold text-white">How to use Rhymes Highlighted</h2>
           <button
             onClick={() => ui.closeHelpModal()}
@@ -68,7 +68,7 @@ export const HelpModal = observer(function HelpModal() {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 space-y-6">
           <Section title="Tagging basics">
             <p className="text-sm text-white/50 leading-relaxed">
               Select a <strong className="text-white/70">rhyme group</strong> in the sidebar,
@@ -121,7 +121,7 @@ export const HelpModal = observer(function HelpModal() {
           </Section>
         </div>
 
-        <div className="shrink-0 px-6 py-4 border-t border-white/5 flex items-center justify-between">
+        <div className="shrink-0 px-4 sm:px-6 py-4 border-t border-white/5 flex items-center justify-between">
           <button
             onClick={() => {
               ui.closeHelpModal();
