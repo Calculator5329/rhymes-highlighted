@@ -55,7 +55,7 @@ export const OnboardingOverlay = observer(function OnboardingOverlay() {
       />
 
       <div
-        className={`absolute pointer-events-auto ${positionClasses} w-80 bg-surface-700 border border-white/15 rounded-xl shadow-2xl p-5 space-y-3`}
+        className={`absolute pointer-events-auto ${positionClasses} max-sm:left-4 max-sm:right-4 max-sm:top-auto max-sm:bottom-4 max-sm:translate-x-0 max-sm:w-auto w-80 bg-surface-700 border border-white/15 rounded-xl shadow-2xl p-5 space-y-3`}
       >
         <div className="flex items-center gap-2">
           <span className="w-6 h-6 rounded-full bg-rhyme-purple/25 text-rhyme-purple text-xs font-bold flex items-center justify-center shrink-0">

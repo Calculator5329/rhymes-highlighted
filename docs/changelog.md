@@ -1,5 +1,18 @@
 # Rhymes Highlighted — Changelog
 
+## 2026-07-11 — Responsive mobile layout
+
+### Changed
+
+- **Header** wraps its action cluster instead of overflowing; grows in height on small screens (`min-h-12`, `flex-wrap`), reduced horizontal padding on mobile.
+- **EditorView** stacks vertically on mobile (`flex-col sm:flex-row`): the rhyme-groups/audio sidebar moves below the lyrics as a capped, scrollable panel (`max-h-[45vh]`, full width, top border) instead of squeezing beside the lyrics.
+- **LyricsDisplay/WordSpan** tap targets get more vertical padding on mobile (`py-1 sm:py-0.5`); main lyrics padding reduced to `p-4` on mobile.
+- **LyricsInput** onboarding step cards go single-column on mobile (`grid-cols-1 sm:grid-cols-3`); heading and padding scale down.
+- **ManualTagToolbar** row wraps on mobile instead of horizontally overflowing.
+- **HelpModal** gains screen-edge margin and reduced inner padding on mobile.
+- **OnboardingOverlay** cards are pinned to a safe bottom position within screen bounds on mobile (`max-sm:` overrides) so anchored tooltips never run off-screen.
+- No new dependencies; changes are Tailwind responsive utilities only.
+
 ## 2026-02-19 — Manual Highlighter Conversion
 
 ### Changed
