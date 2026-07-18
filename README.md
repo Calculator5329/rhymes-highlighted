@@ -1,5 +1,9 @@
 # Rhymes Highlighted
 
+**Live app → [rhymes-highlighted-d5ea8.web.app](https://rhymes-highlighted-d5ea8.web.app)**
+
+![rhymes-highlighted screenshot](docs/screenshots/app.png)
+
 A specialized text editor for analyzing and highlighting rhyming patterns in poetry and song lyrics.
 
 ## What It Is
@@ -39,6 +43,3 @@ The app will be available at `http://localhost:5173`
 npm run build
 ```
 
-## GitHub
-
-https://github.com/Calculator5329/rhymes-highlighted
